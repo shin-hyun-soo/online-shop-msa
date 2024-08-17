@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        AWS_ACCOUNT_ID = 'AWS_ACCOUNT_ID'
+        AWS_ACCOUNT_ID = '533267352758'
         AWS_DEFAULT_REGION = 'ap-northeast-2'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         ARGOCD_APP_NAME = 'online-shop-msa'
