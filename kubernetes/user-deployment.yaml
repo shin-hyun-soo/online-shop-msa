@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: 본인도커주소/user-service:latest
+        image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/user-service:${IMAGE_TAG}
         ports:
         - containerPort: 8083
         env:
@@ -23,9 +23,15 @@ spec:
         - name: SPRING_DATASOURCE_URL
           value: "jdbc:mysql://myrdsinstance-dev.cji4oi0waat8.ap-northeast-2.rds.amazonaws.com:3306/mydb"
         - name: SPRING_DATASOURCE_USERNAME
-          value: "admin"
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: username
         - name: SPRING_DATASOURCE_PASSWORD
-          value: "password"
+          valueFrom:
+            secretKeyRef:
+              name: db-secrets
+              key: password
 ---
 apiVersion: v1
 kind: Service
