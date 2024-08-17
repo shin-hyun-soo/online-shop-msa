@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Docker Build and Push') {
+            steps {
+                sh 'docker build -t 본인도커주소/product-service:$BUILD_NUMBER .'
+                sh 'docker push 본인도커주소/product-service:$BUILD_NUMBER'
+            }
+        }
+        stage('Update Kubernetes Manifests') {
+            steps {
+                sh '''
+                    sed -i 's|image: .*|image: 본인도커주소/product-service:'"$BUILD_NUMBER"'|' kubernetes/product-service.yaml
+                    git config user.email "jenkins@example.com"
+                    git config user.name "Jenkins"
+                    git add kubernetes/product-service.yaml
+                    git commit -m "Update product-service image to $BUILD_NUMBER"
+                    git push origin main
+                '''
+            }
+        }
+        stage('Trigger ArgoCD Sync') {
+            steps {
+                sh 'argocd app sync online-shop-msa'
+            }
+        }
+    }
+}
