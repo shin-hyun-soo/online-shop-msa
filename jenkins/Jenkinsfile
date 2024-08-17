@@ -1,10 +1,10 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven'
+    }
     environment {
-        AWS_ACCOUNT_ID = '533267352758'
-        AWS_DEFAULT_REGION = 'ap-northeast-2'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
-        ARGOCD_APP_NAME = 'online-shop-msa'
     }
     stages {
         stage('Build Services') {
@@ -60,8 +60,8 @@ pipeline {
                         """
                     }
                     sh """
-                        git config user.email "shs6228@naver.com"
-                        git config user.name "shs6228"
+                        git config user.email "jenkins@example.com"
+                        git config user.name "Jenkins"
                         git commit -m "Update service images to ${IMAGE_TAG}"
                         git push origin main
                     """
