@@ -5,6 +5,7 @@ pipeline {
     }
     environment {
         AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
+        AWS_CREDENTIALS = credentials('aws-credentials')
         AWS_DEFAULT_REGION = 'ap-northeast-2' 
         IMAGE_REPO_NAME = 'my-ecr-repo'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
@@ -36,12 +37,13 @@ pipeline {
                 }
             }
         }
-        stage('Build and Push Docker Images') {
-            steps {
-                script {
-                    def services = ['product-service', 'order-service', 'user-service']
-                    services.each { service ->
-                        dir("services/${service}") {
+    stage('Build and Push Docker Images') {
+        steps {
+            script {
+                def services = ['product-service', 'order-service', 'user-service']
+                services.each { service ->
+                    dir("services/${service}") {
+                        withAWS(credentials: 'aws-credentials', region: "${AWS_DEFAULT_REGION}") {
                             sh """
                                 aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
                                 docker build -t ${service}:${IMAGE_TAG} .
@@ -53,6 +55,7 @@ pipeline {
                 }
             }
         }
+    }
         stage('Update Kubernetes Manifests') {
             steps {
                 script {
