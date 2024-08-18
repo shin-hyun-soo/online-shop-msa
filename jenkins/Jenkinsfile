@@ -37,25 +37,25 @@ pipeline {
                 }
             }
         }
-    stage('Build and Push Docker Images') {
-        steps {
-            script {
-                def services = ['product-service', 'order-service', 'user-service']
-                services.each { service ->
-                    dir("services/${service}") {
-                        withAWS(credentials: 'aws-credentials', region: "${AWS_DEFAULT_REGION}") {
-                            sh """
-                                aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
-                                docker build -t ${service}:${IMAGE_TAG} .
-                                docker tag ${service}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${service}:${IMAGE_TAG}
-                                docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${service}:${IMAGE_TAG}
-                            """
+        stage('Build and Push Docker Images') {
+            steps {
+                script {
+                    def services = ['product-service', 'order-service', 'user-service']
+                    services.each { service ->
+                        dir("services/${service}") {
+                            withCredentials([usernamePassword(credentialsId: 'aws-credentials', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                                sh """
+                                    aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
+                                    docker build -t ${service}:${IMAGE_TAG} .
+                                    docker tag ${service}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${service}:${IMAGE_TAG}
+                                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${service}:${IMAGE_TAG}
+                                """
+                            }
                         }
                     }
                 }
             }
         }
-    }
         stage('Update Kubernetes Manifests') {
             steps {
                 script {
