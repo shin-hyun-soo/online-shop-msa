@@ -4,7 +4,11 @@ pipeline {
         maven 'Maven'
     }
     environment {
+        AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
+        AWS_DEFAULT_REGION = 'ap-northeast-2' 
+        IMAGE_REPO_NAME = 'my-ecr-repo'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
+        ARGOCD_APP_NAME = 'online-shop-msa'
     }
     stages {
         stage('Build Services') {
