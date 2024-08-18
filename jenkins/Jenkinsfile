@@ -83,6 +83,8 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'argocd-credentials', usernameVariable: 'ARGOCD_USERNAME', passwordVariable: 'ARGOCD_PASSWORD')]) {
                     sh '''
                         argocd login ${ARGOCD_SERVER} --username ${ARGOCD_USERNAME} --password ${ARGOCD_PASSWORD} --insecure
+                        argocd app sync online-shop-msa
+                        argocd app wait online-shop-msa --health
                     '''
                 }
             }
