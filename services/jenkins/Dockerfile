@@ -20,11 +20,19 @@ RUN groupadd -f docker
 # Jenkins 사용자를 Docker 그룹에 추가
 RUN usermod -aG docker jenkins
 
-# Docker 소켓의 권한을 변경
-RUN chmod 666 /var/run/docker.sock
-
 # 작업 디렉토리 설정
 WORKDIR /var/jenkins_home
 
 # Jenkins 사용자로 전환
 USER jenkins
+
+# Docker 소켓 권한 변경을 위한 스크립트 생성
+RUN echo '#!/bin/bash\n\
+if [ -e /var/run/docker.sock ]; then\n\
+    sudo chmod 666 /var/run/docker.sock\n\
+fi\n\
+exec /sbin/tini -- /usr/local/bin/jenkins.sh' > /usr/local/bin/jenkins-entrypoint.sh \
+    && chmod +x /usr/local/bin/jenkins-entrypoint.sh
+
+# 새로운 엔트리포인트 설정
+ENTRYPOINT ["/usr/local/bin/jenkins-entrypoint.sh"]
