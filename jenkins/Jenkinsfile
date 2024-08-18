@@ -82,7 +82,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'argocd-auth-token', variable: 'ARGOCD_AUTH_TOKEN')]) {
                     sh """
-                        argocd login ${ARGOCD_SERVER} --auth-token ${ARGOCD_AUTH_TOKEN} --insecure
+                        argocd login ${ARGOCD_SERVER} --auth-token "${ARGOCD_AUTH_TOKEN}" --insecure --plaintext
                         argocd app sync online-shop-msa
                         argocd app wait online-shop-msa --health
                     """
