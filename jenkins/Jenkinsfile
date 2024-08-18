@@ -81,14 +81,8 @@ pipeline {
         stage('Trigger ArgoCD Sync') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'argocd-auth-token', variable: 'ARGOCD_AUTH_TOKEN')]) {
-                        catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            sh """
-                                ARGOCD_DEBUG=true argocd login ${ARGOCD_SERVER} --auth-token ${ARGOCD_AUTH_TOKEN} --insecure --plaintext
-                                argocd app sync ${ARGOCD_APP_NAME}
-                                argocd app wait ${ARGOCD_APP_NAME} --health
-                            """
-                        }
+                    withCredentials([usernamePassword(credentialsId: 'argocd-credentials', usernameVariable: 'ARGOCD_USERNAME', passwordVariable: 'ARGOCD_PASSWORD')]) {
+                        sh "argocd login ${ARGOCD_SERVER} --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure"
                     }
                 }
             }
