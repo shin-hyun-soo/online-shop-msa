@@ -29,7 +29,7 @@ RUN echo '#!/bin/bash\n\
 if [ -e /var/run/docker.sock ]; then\n\
     sudo chmod 666 /var/run/docker.sock\n\
 fi\n\
-exec /sbin/tini -- /usr/local/bin/jenkins.sh' > /usr/local/bin/jenkins-entrypoint.sh \
+exec /usr/local/bin/jenkins.sh' > /usr/local/bin/jenkins-entrypoint.sh \
     && chmod +x /usr/local/bin/jenkins-entrypoint.sh
 
 # 작업 디렉토리 설정
