@@ -81,9 +81,13 @@ pipeline {
         stage('Trigger ArgoCD Sync') {
             steps {
                 withCredentials([string(credentialsId: 'argocd-auth-token', variable: 'ARGOCD_AUTH_TOKEN')]) {
-                    sh "ARGOCD_DEBUG=true argocd login ${ARGOCD_SERVER} --auth-token ${ARGOCD_AUTH_TOKEN} --insecure --plaintext"
-                    sh "argocd app sync ${ARGOCD_APP_NAME}"
-                    sh "argocd app wait ${ARGOCD_APP_NAME} --health"
+                    try {
+                        sh "ARGOCD_DEBUG=true argocd login ${ARGOCD_SERVER} --auth-token ${ARGOCD_AUTH_TOKEN} --insecure --plaintext"
+                        sh "argocd app sync ${ARGOCD_APP_NAME}"
+                    } catch (Exception e) {
+                        echo "Error occurred: ${e.getMessage()}"
+                        currentBuild.result = 'FAILURE'
+                    }
                 }
             }
         }
