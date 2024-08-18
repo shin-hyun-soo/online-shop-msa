@@ -7,6 +7,10 @@ pipeline {
         AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')
         AWS_CREDENTIALS = credentials('aws-credentials')
         IMAGE_TAG = "${env.BUILD_NUMBER}"
+        AWS_DEFAULT_REGION = 'ap-northeast-2' 
+        IMAGE_REPO_NAME = 'my-ecr-repo'
+        ARGOCD_APP_NAME = 'online-shop-msa'
+        ARGOCD_SERVER = 'https://ae80d1f57c08d4b3eb9ee707b033ffa6-1154804483.ap-northeast-2.elb.amazonaws.com'
     }
     stages {
         stage('Build Services') {
